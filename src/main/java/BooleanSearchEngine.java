@@ -27,47 +27,48 @@ public class BooleanSearchEngine implements SearchEngine {
         // Перебор файлов из текущей папки
         for (File filePdf : pdfsDir.listFiles()) {
             // Объект PDF документа
-            PdfDocument pdfDocument = new PdfDocument(new PdfReader(filePdf));
-            // Получение имени файла PDF
-            String pdfName = filePdf.getName();
-            // Получение количества страниц из текущего PDF
-            int numberOfPages = pdfDocument.getNumberOfPages();
-            System.out.println("pdfName: " + pdfName + ", numberOfPages: " + numberOfPages);
-            // Чтение всех страниц
-            for (int numberPage = 1; numberPage <= numberOfPages; numberPage++) {
-                Map<String, Integer> freqs = new HashMap<>();
-                // Получение отдельной страницы
-                PdfPage page = pdfDocument.getPage(numberPage);
-                // Получить весь текст со страницы
-                String text = PdfTextExtractor.getTextFromPage(page);
-                // Разбитый текст со страницы на отдельные слова
-                String[] wordsOnPage = text.split("\\P{IsAlphabetic}+");
-                // Группировка в Map слов (key) с одной страницы с подсчетом количества повторений (value)
-                for (String word : wordsOnPage) {
-                    if (word.isEmpty()) {
-                        continue;
+            try (PdfDocument pdfDocument = new PdfDocument(new PdfReader(filePdf))) {
+                // Получение имени файла PDF
+                String pdfName = filePdf.getName();
+                // Получение количества страниц из текущего PDF
+                int numberOfPages = pdfDocument.getNumberOfPages();
+                System.out.println("pdfName: " + pdfName + ", numberOfPages: " + numberOfPages);
+                // Чтение всех страниц
+                for (int numberPage = 1; numberPage <= numberOfPages; numberPage++) {
+                    Map<String, Integer> freqs = new HashMap<>();
+                    // Получение отдельной страницы
+                    PdfPage page = pdfDocument.getPage(numberPage);
+                    // Получить весь текст со страницы
+                    String text = PdfTextExtractor.getTextFromPage(page);
+                    // Разбитый текст со страницы на отдельные слова
+                    String[] wordsOnPage = text.split("\\P{IsAlphabetic}+");
+                    // Группировка в Map слов (key) с одной страницы с подсчетом количества повторений (value)
+                    for (String word : wordsOnPage) {
+                        if (word.isEmpty()) {
+                            continue;
+                        }
+                        word = word.toLowerCase();
+                        freqs.put(word, freqs.getOrDefault(word, 0) + 1);
                     }
-                    word = word.toLowerCase();
-                    freqs.put(word, freqs.getOrDefault(word, 0) + 1);
-                }
-                // Формирование в Map по каждому слову (key) List из объектов PageEntry (value)
-                for (Map.Entry<String, Integer> stringIntegerEntry : freqs.entrySet()) {
-                    pageEntryList = new ArrayList<>();
-                    String wordFinal = stringIntegerEntry.getKey();
-                    Integer count = stringIntegerEntry.getValue();
-                    pageEntry = new PageEntry(pdfName, numberPage, count);
-                    // Добавление List<PageEntry> в Map<String, List<PageEntry>>, если:
-                    // 1) элемент с ключом wordFinal уже есть в Map<String, List<PageEntry>>
-                    // 2) это новый элемент для Map<String, List<PageEntry>>
-                    if (mapWordPageEntry.containsKey(wordFinal)) {
-                        mapWordPageEntry.get(wordFinal).add(pageEntry);
-                        // Сортировка через реализацию метода compareTo() в PageEntry
-                        Collections.sort(mapWordPageEntry.get(wordFinal));
-                    } else {
-                        pageEntryList.add(pageEntry);
-                        mapWordPageEntry.put(wordFinal, pageEntryList);
-                        // Сортировка через реализацию метода compareTo() в PageEntry
-                        Collections.sort(mapWordPageEntry.get(wordFinal));
+                    // Формирование в Map по каждому слову (key) List из объектов PageEntry (value)
+                    for (Map.Entry<String, Integer> stringIntegerEntry : freqs.entrySet()) {
+                        pageEntryList = new ArrayList<>();
+                        String wordFinal = stringIntegerEntry.getKey();
+                        Integer count = stringIntegerEntry.getValue();
+                        pageEntry = new PageEntry(pdfName, numberPage, count);
+                        // Добавление List<PageEntry> в Map<String, List<PageEntry>>, если:
+                        // 1) элемент с ключом wordFinal уже есть в Map<String, List<PageEntry>>
+                        // 2) это новый элемент для Map<String, List<PageEntry>>
+                        if (mapWordPageEntry.containsKey(wordFinal)) {
+                            mapWordPageEntry.get(wordFinal).add(pageEntry);
+                            // Сортировка через реализацию метода compareTo() в PageEntry
+                            Collections.sort(mapWordPageEntry.get(wordFinal));
+                        } else {
+                            pageEntryList.add(pageEntry);
+                            mapWordPageEntry.put(wordFinal, pageEntryList);
+                            // Сортировка через реализацию метода compareTo() в PageEntry
+                            Collections.sort(mapWordPageEntry.get(wordFinal));
+                        }
                     }
                 }
             }
