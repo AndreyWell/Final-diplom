@@ -13,7 +13,7 @@ public class Client {
                      new InputStreamReader(System.in))
         ) {
             while (true) {
-                System.out.println("Введите слово для поиска или 'end':");
+                System.out.println("Введите слова для поиска или 'end':");
 
                 String input = reader.readLine();
 

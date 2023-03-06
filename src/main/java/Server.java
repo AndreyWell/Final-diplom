@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +46,16 @@ public class Server {
 
                         // Условие, когда search = null (слово не найдено)
                         if (Optional.ofNullable(search).isEmpty()) {
-                            s = "Слово: " + word.toUpperCase() + " не найдено";
+                            s = "Слово (-а): " + word.toUpperCase() + " не найдено (-ы)";
+                        }
+
+                        // Ввели только слова исключения
+                        if (!Optional.ofNullable(search).isEmpty()) {
+                            try {
+                                search.get(0);
+                            } catch (Exception e) {
+                                s = "Введено слово (-а) исключение (-я)";
+                            }
                         }
                         out.println(s);
                     }

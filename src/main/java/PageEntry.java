@@ -38,4 +38,13 @@ public class PageEntry implements Comparable<PageEntry>, Serializable {
             return pdfName.compareTo(o.pdfName);
         }
     }
+
+    @Override
+    public String toString() {
+        return "PageEntry{" +
+                "pdfName='" + pdfName + '\'' +
+                ", page=" + page +
+                ", count=" + count +
+                '}';
+    }
 }
