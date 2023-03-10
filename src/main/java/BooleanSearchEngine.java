@@ -21,7 +21,7 @@ public class BooleanSearchEngine implements SearchEngine {
 
     // Индексация PDF файлов в конструкторе - создание списка слов с данными
     // по частоте их использования на странице каждого файла
-    private BooleanSearchEngine(File pdfsDir) throws IOException {
+    public BooleanSearchEngine(File pdfsDir) throws IOException {
         this.pdfsDir = pdfsDir;
         this.mapWordPageEntry = new HashMap<>();
         this.stopWords = new HashSet<>();
@@ -123,7 +123,7 @@ public class BooleanSearchEngine implements SearchEngine {
                 // Перебор только совпадений PageEntry между List - pageEntriesNew и pageEntriesFinal
                 for (PageEntry entry : pageEntries) {
                     for (PageEntry entryExistsNew : pageEntriesNew) {
-                        if (entry.getPdfName() == entryExistsNew.getPdfName() &&
+                        if (entry.getPdfName().equals(entryExistsNew.getPdfName()) &&
                                 entry.getPage() == entryExistsNew.getPage()) {
                             // Удаление совпавшего PageEntry
                             pageEntriesFinal.remove(entry);
@@ -155,21 +155,14 @@ public class BooleanSearchEngine implements SearchEngine {
         // Сортировка итогового списка
         Collections.sort(pageEntriesFinal);
 
+
         if (pageEntriesFinal.isEmpty()) {
             // Ввели только слова исключения
-            if (rightWords.isEmpty()) {
-            } else {
+            if (!rightWords.isEmpty()) {
                 // Ввели слова, которых нет
                 pageEntriesFinal = getMapWordPageEntry().get(split[0]);
             }
         }
         return pageEntriesFinal;
-    }
-
-    public static BooleanSearchEngine getInstance(File pdfsDir) throws IOException {
-        if (instance == null) {
-            instance = new BooleanSearchEngine(pdfsDir);
-        }
-        return instance;
     }
 }
